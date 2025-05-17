@@ -218,41 +218,25 @@ export type EmitterEvent = {
 - setProducts(items: IProduct): void - сохраняет массив товаров и генерирует событие products: changed
 - getProduct(id: string): IProduct -возвращает товар по его айди
 
-#### Класс IOrderDeliveryData
+#### Класс IOrderFormData
 
-Класс отвечает за хранение данных первого шага оформления заказа. Это включает способ оплаты и адрес доставки.
+Класс отвечает за хранение всех данных формы заказа: способа оплаты, адреса, почты и телефона.
 
-Конструктор класса принимает инстант брокера событий.
+Конструктор класса принимает инстанс брокера событий.
 
 В полях класса хранятся следующие данные:
 
 - payment: string - способ оплаты
 - address: string - введенный пользователем адрес
-- events: IEvents - экземпляр класса `EventEmitter` для инициации событий при изменении данных.
-
-Так же класс предоставляет набор методов для взаимодействия с этими данными.
-
-- choosePaymentType(method: PaymentMethod): void - сохраняет способ оплаты
-- setAddress(address: string): void - сораняет введенный адрес
-- validateForm(data: TDeliveryInfo): boolean - проверяет объект с данными на валидность и генерирует событие order-delivery:valid
-
-#### Класс IOrderContactsData
-
-Класс отвечает за хранение данных второго шага оформления заказа. Это включает указание почты и номера телефона покупателя.
-
-Конструктор класса принимает инстант брокера событий.
-
-В полях класса хранятся следующие данные:
-
 - email: string - почта покупателя
-- phone: string - телефонный номер покупателя
-- events: IEvents - экземпляр класса `EventEmitter` для инициации событий при изменении данных.
+- phone: string - введенный пользователем адрес
+- events: IEvents - брокер событий
 
 Так же класс предоставляет набор методов для взаимодействия с этими данными.
 
-- setEmail(email: string): void - сохраняет введенную почту покупателя
-- setPhone(number: string): void - сохраняет введенный номер покупателя
-- validateForm(data: TContactInfo): boolean - проверяет объект с данными на валидность и генерирует событие order-contacts:valid
+- setField(field: keyof IOrderForm, value: string) - сохраняет значение поля формы
+- getFormData(): IOrderForm - возвращает текущие данные
+- validateForm(): boolean - проверяет объект с данными на валидность и генерирует событие order:valid
 
 #### Класс IBasketData
 
@@ -300,6 +284,11 @@ export type EmitterEvent = {
 
 Поля класса содержат элементы разметки элементов карточки. Конструктор, кроме темплейта принимает экземпляр `EventEmitter` для инициации событий.
 
+Поля класса
+
+- template: HTMLTemplateElement - шаблон карточки
+- events: IEvents - брокер событий
+
 Методы:
 
 - disableButton(): void - делает кнопку неактивной
@@ -309,6 +298,107 @@ export type EmitterEvent = {
 #### Класс CatalogView
 
 Отвечает за отображение блока с карточками на главной странице. В конструктор принимает контейнер, в котором размещаются карточки.
+
+Поля класса
+
+- container: HTMLElement - контейнер для вставки карточек
+
+Методы:
+
+- render(products: HTMLElement[]):void - принимает масссив карточек и отрисовывает их в контейнере
+- clear():void - очищает содержимое контейнера перед отрисовкой
+
+#### Класс ProductDetailsView
+
+Отвечает за отображение подробной информации о товаре в модальном окне. Используется для предпросмотра карточки и добавления его в корзину.
+
+Поля класса:
+
+- element: HTMLElement - корневой элемент с разметкой
+- category: HTMLElement - категория товара
+- title: HTMLElement - название товара
+- description: HTMLElement - описание товара
+- image: HTMLImageElement - картинка
+- price: HTMLElement - цена
+- button: HTMLButtonElement - кнопка купить
+- events: IEvents - брокер событий
+
+Методы:
+
+- render(product: IProduct): HTMLElement - заполняет данным о товаре
+- get element(): HTMLElement - возвращает корневой элемент компонента
+
+#### Класс BasketView
+
+Отвечает за отображение содержимого корзины.
+
+Поля класса:
+
+- element: HTMLElement - корневой элемент
+- list: HTMLElement - контейнер списка товара
+- total: HTMLElement - сумма
+- button: HTMLButtonElement - кнопка оформить
+- events: IEvents - брокер событий
+
+Методы:
+
+- render(items: IProduct[]): HTMLElement - отрисовывает список товаров
+- get element(): HTMLElement - возвращает корневой элемент компонента
+
+#### Класс OrderDeliveryView
+
+Отвечает за отображение первого шага заказа, а именно способ оплаты и адрес доставки.
+
+Поля класса:
+
+- element: HTMLElement - корневой элемент формы
+- payment: NodeListOf<HTMLElement> - список радио инпутов
+- address: HTMLElement - инпут адреса
+- submitButton: HTMLButtonElement - кнопка продолжить
+- events: IEvents - брокер событий
+
+Методы:
+
+- setDisabled(isDisabled: boolean) - блокирует кнопку
+- getFormData(): Pick<IOrderForm, "payment" | "address"> - возвращает данные
+- setErrors(errors: FormErrors) - отображает ошибки
+- get element() - корневой элемент
+
+#### Класс OrderContactsView
+
+Отвечает за отображение второго шага заказа, а именно номер телефона и адрес почты.
+
+Поля класса:
+
+- element: HTMLElement - корневой элемент формы
+- email: HTMLElement - инпут адреса почты
+- phone: HTMLElement - инпут номера
+- submitButton: HTMLButtonElement - кнопка подтвердить
+- events: IEvents - брокер событий
+
+Методы:
+
+- setDisabled(isDisabled: boolean) - блокирует кнопку
+- getFormData(): Pick<IOrderForm, "email" | "phone"> - возвращает данные
+- setErrors(errors: FormErrors) - отображает ошибки
+- get element() - корневой элемент
+
+#### Класс SuccessView
+
+Отвечает за отображение финального экрана успешного заказа. Показывает в модальном окне и содержит подтверждение и сумму заказа.
+
+Поля класса:
+
+- element: HTMLElement - корневой элемент формы
+- title: HTMLElement - подтверждение заказа
+- total: HTMLElement - сумма списания
+- button: HTMLButtonElement - кнопка за новыми покупками
+- events: IEvents - брокер событий
+
+Методы:
+
+- render(order: IOrderStatus):HTMLElement - инфо об успешном заказе
+- get element(): HTMLElement - корневой элемент
 
 ## Взаимодействие компонентов
 
@@ -322,8 +412,7 @@ _События изменения данных (генерируются кла
 - `product:previewClear` - необходима очистка данных выбранной для показа в модальном окне карточки
 - `basket:changed` - изменение массива карточек в корзине
 - `basket:cleared`- корзина очищена
-- `order-delivery:valid` - доставка прошла валидацию
-- `order-contacts:valid` - контактная информация прошла валидацию
+- `order:valid` - форма прошла валидацию
 - `order:confirmed` - заказ готов быть подтвержден
 - `order:success` - успешно оформлен и подтвержден заказ
 

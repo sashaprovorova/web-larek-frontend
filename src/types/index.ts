@@ -62,9 +62,6 @@ export interface IOrderForm {
 	phone: string;
 }
 
-export type TDeliveryInfo = Pick<IOrderForm, 'payment' | 'address'>;
-export type TContactInfo = Pick<IOrderForm, 'email' | 'phone'>;
-
 // описываем весь заказ
 export interface IOrder extends IOrderForm {
 	items: string[];
@@ -97,14 +94,9 @@ export interface IBasketData {
 	clearBasket(): void;
 }
 
-export interface IOrderDeliveryData {
-	choosePaymentType(method: PaymentMethod): void;
-	setAddress(address: string): void;
-	validateForm(data: TDeliveryInfo): boolean;
-}
-
-export interface IOrderContactsData {
-	setEmail(email: string): void;
-	setPhone(number: string): void;
-	validateForm(data: TContactInfo): boolean;
+export interface IOrderFormData {
+	payment: PaymentMethod;
+	address: string;
+	email: string;
+	phone: string;
 }
