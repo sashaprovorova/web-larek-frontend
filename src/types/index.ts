@@ -108,13 +108,3 @@ export interface IOrderContactsData {
 	setPhone(number: string): void;
 	validateForm(data: TContactInfo): boolean;
 }
-
-// Глобальные
-
-export interface IAppState {
-	products: IProduct[];
-	basket: IProduct[];
-	preview: IProduct | null;
-	order: IOrder;
-	formErrors: FormErrors;
-}
