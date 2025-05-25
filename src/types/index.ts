@@ -34,7 +34,7 @@ export interface IEvents {
 // Данные и типы данных, используемые в приложении
 
 // описываем категории продаваемого продукта
-type ProductCategory =
+export type ProductCategory =
 	| 'софт-скил'
 	| 'хард-скил'
 	| 'другое'
@@ -99,4 +99,20 @@ export interface IOrderFormData {
 	address: string;
 	email: string;
 	phone: string;
+}
+
+// view
+
+export interface IModalData {
+	content: HTMLElement;
+}
+
+export interface ICardAction {
+	onClick: (event: MouseEvent) => void;
+}
+
+export interface IPageView {
+	counter: number;
+	catalog: HTMLElement[];
+	locked: boolean;
 }
