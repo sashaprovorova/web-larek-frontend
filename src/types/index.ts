@@ -116,3 +116,8 @@ export interface IPageView {
 	catalog: HTMLElement[];
 	locked: boolean;
 }
+
+export interface IBasketView {
+	list: HTMLElement[];
+	price: number;
+}

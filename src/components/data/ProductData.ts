@@ -6,6 +6,7 @@ export class ProductData {
 	protected _preview: string | null = null;
 
 	constructor(protected events: IEvents) {}
+
 	setProducts(items: IProduct[]) {
 		this._products = items;
 		this.events.emit('products:changed', items);
