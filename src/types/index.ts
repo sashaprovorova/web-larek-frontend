@@ -52,7 +52,7 @@ export interface IProduct {
 }
 
 // описываем способ оплаты
-type PaymentMethod = 'cash' | 'card';
+export type PaymentMethod = 'cash' | 'card';
 
 // описываем форму доставки и информацию о покупателе
 export interface IOrderForm {
@@ -75,7 +75,7 @@ export interface IOrderStatus {
 }
 
 // описываем ошибки валидации
-type FormErrors = Partial<Record<keyof IOrderForm, string>>;
+export type FormErrors = Partial<Record<keyof IOrderForm, string>>;
 
 // Слой данных
 
@@ -120,4 +120,14 @@ export interface IPageView {
 export interface IBasketView {
 	list: HTMLElement[];
 	price: number;
+}
+
+export interface IDeliveryForm {
+	payment: PaymentMethod;
+	address: string;
+}
+
+export interface IContactForm {
+	email: string;
+	phone: string;
 }

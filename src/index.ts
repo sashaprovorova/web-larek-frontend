@@ -6,11 +6,21 @@ import { CatalogPage } from './components/view/CatalogPage';
 import { Modal } from './components/common/Modal';
 import { API_URL, CDN_URL } from './utils/constants';
 import { ensureElement, cloneTemplate } from './utils/utils';
-import { IProduct } from './types';
+import { IOrderForm, IProduct } from './types';
 import { ProductData } from './components/data/ProductData';
 import { Card } from './components/view/ProductCard';
 import { BasketData } from './components/data/BasketData';
 import { Basket } from './components/view/Basket';
+import { DeliveryForm } from './components/view/DeliveryForm';
+import { ContactForm } from './components/view/ContactForm';
+import { OrderFormData } from './components/data/OrderFormData';
+
+const catalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
+const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
+const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
+const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
+const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
+const contactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
 
 const events = new EventEmitter();
 const api = new LarekAPI(CDN_URL, API_URL);
@@ -18,12 +28,10 @@ const page = new CatalogPage(document.body, events);
 const modal = new Modal(ensureElement('#modal-container'), events);
 const productData = new ProductData(events);
 const basketData = new BasketData(events);
-
-const catalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
-const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
-const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
-const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
 const basketView = new Basket(cloneTemplate(basketTemplate), events);
+const orderData = new OrderFormData(events);
+const deliveryForm = new DeliveryForm(cloneTemplate(orderTemplate), events);
+const contactForm = new ContactForm(cloneTemplate(contactsTemplate), events);
 
 api
 	.getProductList()
@@ -105,3 +113,80 @@ events.on('basket:remove', (item: IProduct) => {
 	page.counter = basketData.getItems().length;
 	events.emit('basket:open');
 });
+
+events.on('order:open', () => {
+	orderData.clear?.();
+	modal.render({
+		content: deliveryForm.render({
+			address: '',
+			payment: 'card',
+			valid: false,
+			errors: '',
+		}),
+	});
+});
+
+events.on('order:valid', ({ isValid }: { isValid: boolean }) => {
+	deliveryForm.valid = isValid;
+});
+
+events.on('contacts:valid', ({ isValid }: { isValid: boolean }) => {
+	contactForm.valid = isValid;
+});
+
+events.on('order:validation-error', (errors: Partial<IOrderForm>) => {
+	const { payment, address } = errors;
+	deliveryForm.errors = Object.values({ payment, address })
+		.filter(Boolean)
+		.join('; ');
+});
+
+events.on('contacts:validation-error', (errors: Partial<IOrderForm>) => {
+	const { email, phone } = errors;
+	contactForm.errors = Object.values({ email, phone })
+		.filter(Boolean)
+		.join('; ');
+});
+
+events.on('order:submit', () => {
+	const isValid = orderData.validateDelivery();
+	if (isValid) {
+		modal.render({
+			content: contactForm.render({
+				email: '',
+				phone: '',
+				valid: false,
+				errors: '',
+			}),
+		});
+	}
+});
+
+events.on(
+	'orderInput:change',
+	(data: { field: keyof IOrderForm; value: string }) => {
+		orderData.setField(data.field, data.value);
+	}
+);
+
+// events.on('contacts:submit', () => {
+// 	const isValid = orderData.validateContacts();
+
+// 	if (isValid) {
+// 		const fullOrder = orderData.getFormData();
+// 		fullOrder.items = basketData.getItems().map((i) => i.id);
+// 		fullOrder.total = basketData.getTotal();
+
+// 		api
+// 			.orderProducts(fullOrder)
+// 			.then((res) => {
+// 				modal.render({
+// 					content: success.render({ description: res.total }),
+// 				});
+// 				orderData.clear?.();
+// 				basketData.clear();
+// 				page.counter = 0;
+// 			})
+// 			.catch(console.error);
+// 	}
+// });
