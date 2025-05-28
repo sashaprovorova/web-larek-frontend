@@ -30,19 +30,9 @@ export class OrderFormData {
 		} else if (field === 'phone') {
 			this.phone = value;
 		}
-		// this[field] = value;
 		if (field === 'payment' || field === 'address') {
 			this.validateDelivery();
-			// if (value.trim()) {
-			// 	this.validateDelivery();
-			// }
-			// }
 		} else if (field === 'email' || field === 'phone') {
-			// const errors = this.getContactValidationErrors(field);
-			// this.events.emit('contacts:validation-error', errors);
-
-			// const isValid = !errors.email && !errors.phone;
-			// this.events.emit('contacts:valid', { isValid });
 			const errors = this.getContactValidationErrors(field);
 			this.events.emit('contacts:validation-error', errors);
 
@@ -75,11 +65,9 @@ export class OrderFormData {
 			errors.payment = 'Не выбран способ оплаты';
 		if (this.touchedFields.address && !this.address?.trim())
 			errors.address = 'Не указан адрес';
-		// if (!this.address?.trim()) errors.address = 'Не указан адрес';
 
 		this.events.emit('order:validation-error', errors);
 
-		// const isValid = Object.keys(errors).length === 0;
 		const isValid =
 			!errors.address && this.touchedFields.address && !!this.payment;
 		this.events.emit('order:valid', { isValid });
@@ -117,7 +105,6 @@ export class OrderFormData {
 
 		this.events.emit('contacts:validation-error', errors);
 
-		// const isValid = !errors.email && !errors.phone;
 		const isValid =
 			!errors.email &&
 			!errors.phone &&

@@ -101,6 +101,13 @@ export interface IOrderFormData {
 	phone: string;
 }
 
+//data
+
+export interface IFormState {
+	valid: boolean;
+	errors: string;
+}
+
 // view
 
 export interface IModalData {

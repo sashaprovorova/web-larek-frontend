@@ -18,20 +18,10 @@ export class Card extends Component<IProduct> {
 		['кнопка', 'card__category_button'],
 	]);
 
-	protected setImage(
-		element: HTMLImageElement | undefined,
-		src: string,
-		alt?: string
-	) {
-		if (element) {
-			element.src = src;
-			if (alt) element.alt = alt;
-		}
-	}
-
 	constructor(container: HTMLElement, actions?: ICardAction) {
 		super(container);
 
+		// получаем элементы из шаблона
 		this._title = ensureElement<HTMLElement>('.card__title', container);
 		this._price = ensureElement<HTMLElement>('.card__price', container);
 		this._image = container.querySelector('.card__image');
@@ -39,6 +29,7 @@ export class Card extends Component<IProduct> {
 		this._category = container.querySelector('.card__category');
 		this._button = container.querySelector('.card__button');
 
+		// обрабатываем клик по товару
 		if (actions?.onClick) {
 			if (this._button) {
 				this._button.addEventListener('click', actions.onClick);
@@ -47,50 +38,60 @@ export class Card extends Component<IProduct> {
 			}
 		}
 	}
+
+	// устанавливаем айди товара
 	set id(value: string) {
 		this.container.dataset.id = value;
 	}
+
 	get id(): string {
 		return this.container.dataset.id || '';
 	}
+
+	// устанавливаем название
 	set title(value: string) {
 		this.setText(this._title, value);
 	}
+
 	get title(): string {
 		return this._title.textContent || '';
 	}
+
+	// устанавливаем картинку
 	set image(value: string) {
 		this.setImage(this._image, value, this.title);
 	}
+
+	// устанавливаем описание
 	set description(value: string) {
 		this.setText(this._description, value);
 	}
 
+	// устанавливаем цену
 	set price(value: number | null) {
-		this.setText(
-			this._price,
-			value != null ? `${value.toLocaleString('ru-RU')} синапсов` : 'Бесценно'
-		);
-		if (this._button) {
-			this._button.disabled = value === null;
-		}
+		const displayPrice =
+			value != null ? `${value.toLocaleString('ru-RU')} синапсов` : 'Бесценно';
+		this.setText(this._price, displayPrice);
+		this._button && (this._button.disabled = value == null);
 	}
 
+	// устанавливаем категорию
 	set category(value: ProductCategory) {
 		this.setText(this._category, value);
-		// this._category?.classList.add(this._productCategory.get(value) || '');
 		const className = this._productCategory.get(value);
 		if (className && this._category) {
 			this._category.classList.add(className);
 		}
 	}
 
+	// устанавливаем надпись на кнопке
 	set button(value: string) {
 		if (this._button) {
 			this.setText(this._button, value);
 		}
 	}
 
+	// меняем обработчик кнопки с текстом
 	setButtonHandler(text: string, onClick: () => void) {
 		if (this._button) {
 			this.setText(this._button, text);
