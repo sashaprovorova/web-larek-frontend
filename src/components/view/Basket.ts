@@ -28,7 +28,7 @@ export class Basket extends Component<IBasketView> {
 	}
 
 	set price(value: number) {
-		this.setText(this._price, `${value} синапсов`);
+		this.setText(this._price, `${value.toLocaleString('ru-RU')} синапсов`);
 	}
 
 	disableButton() {

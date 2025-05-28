@@ -14,6 +14,7 @@ import { Basket } from './components/view/Basket';
 import { DeliveryForm } from './components/view/DeliveryForm';
 import { ContactForm } from './components/view/ContactForm';
 import { OrderFormData } from './components/data/OrderFormData';
+import { Success } from './components/view/Success';
 
 const catalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
@@ -21,6 +22,7 @@ const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
 const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
 const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
 const contactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
+const successTemplate = ensureElement<HTMLTemplateElement>('#success');
 
 const events = new EventEmitter();
 const api = new LarekAPI(CDN_URL, API_URL);
@@ -32,6 +34,9 @@ const basketView = new Basket(cloneTemplate(basketTemplate), events);
 const orderData = new OrderFormData(events);
 const deliveryForm = new DeliveryForm(cloneTemplate(orderTemplate), events);
 const contactForm = new ContactForm(cloneTemplate(contactsTemplate), events);
+const success = new Success(cloneTemplate(successTemplate), () => {
+	modal.close();
+});
 
 api
 	.getProductList()
@@ -56,6 +61,8 @@ events.on('modal:open', () => {
 
 events.on('modal:close', () => {
 	page.locked = false;
+	deliveryForm.clear?.();
+	contactForm.clear?.();
 });
 
 events.on('card:select', (product: IProduct) => {
@@ -73,6 +80,20 @@ events.on('card:select', (product: IProduct) => {
 	preview.description = product.description;
 	preview.price = product.price;
 	preview.button = 'В корзину';
+
+	const isInCart = basketData.getItems().some((i) => i.id === product.id);
+	const isPriceless = product.price === null;
+	if (isInCart) {
+		preview.setButtonHandler('Удалить из корзины', () => {
+			basketData.remove(product.id);
+			events.emit('basket:changed', basketData.getItems());
+			modal.close();
+		});
+	} else if (isPriceless) {
+		preview.button = 'Нельзя купить';
+	} else {
+		preview.button = 'В корзину';
+	}
 
 	modal.render({
 		content: preview.render(product),
@@ -115,11 +136,11 @@ events.on('basket:remove', (item: IProduct) => {
 });
 
 events.on('order:open', () => {
-	orderData.clear?.();
+	orderData.clear();
 	modal.render({
 		content: deliveryForm.render({
 			address: '',
-			payment: 'card',
+			payment: orderData.payment,
 			valid: false,
 			errors: '',
 		}),
@@ -169,24 +190,29 @@ events.on(
 	}
 );
 
-// events.on('contacts:submit', () => {
-// 	const isValid = orderData.validateContacts();
+events.on('contacts:submit', () => {
+	const isValid = orderData.validateContacts();
 
-// 	if (isValid) {
-// 		const fullOrder = orderData.getFormData();
-// 		fullOrder.items = basketData.getItems().map((i) => i.id);
-// 		fullOrder.total = basketData.getTotal();
+	if (isValid) {
+		const fullOrder = orderData.getFormData();
+		fullOrder.items = basketData.getItems().map((i) => i.id);
+		fullOrder.total = basketData.getTotal();
 
-// 		api
-// 			.orderProducts(fullOrder)
-// 			.then((res) => {
-// 				modal.render({
-// 					content: success.render({ description: res.total }),
-// 				});
-// 				orderData.clear?.();
-// 				basketData.clear();
-// 				page.counter = 0;
-// 			})
-// 			.catch(console.error);
-// 	}
-// });
+		api
+			.orderProducts(fullOrder)
+			.then((res) => {
+				modal.render({
+					content: success.render({ total: res.total }),
+				});
+				orderData.clear?.();
+				basketData.clear();
+				page.counter = 0;
+			})
+			.catch(console.error);
+	} else {
+		events.emit(
+			'contacts:validation-error',
+			orderData.getContactValidationErrors()
+		);
+	}
+});

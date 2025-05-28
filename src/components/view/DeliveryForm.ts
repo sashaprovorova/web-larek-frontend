@@ -1,5 +1,5 @@
 import { Form } from '../common/Form';
-import { IDeliveryForm, IEvents } from '../../types';
+import { IDeliveryForm, IEvents, IOrderForm } from '../../types';
 import { ensureElement } from '../../utils/utils';
 
 export class DeliveryForm extends Form<IDeliveryForm> {
@@ -19,7 +19,7 @@ export class DeliveryForm extends Form<IDeliveryForm> {
 			this.container
 		);
 
-		this.togglePayment('card');
+		// this.togglePayment('card');
 
 		this._cardButton.addEventListener('click', () =>
 			this.togglePayment('card')
@@ -33,6 +33,12 @@ export class DeliveryForm extends Form<IDeliveryForm> {
 		this._cardButton.classList.toggle('button_alt-active', method === 'card');
 		this._cashButton.classList.toggle('button_alt-active', method === 'cash');
 		this.onInputChange('payment', method);
+	}
+
+	override render(data: any): HTMLFormElement {
+		super.render(data);
+		if (data.payment) this.togglePayment(data.payment);
+		return this.container;
 	}
 
 	clear() {

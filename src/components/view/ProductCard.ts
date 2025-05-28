@@ -67,7 +67,10 @@ export class Card extends Component<IProduct> {
 	}
 
 	set price(value: number | null) {
-		this.setText(this._price, value != null ? `${value} синапсов` : 'Бесценно');
+		this.setText(
+			this._price,
+			value != null ? `${value.toLocaleString('ru-RU')} синапсов` : 'Бесценно'
+		);
 		if (this._button) {
 			this._button.disabled = value === null;
 		}
@@ -85,6 +88,14 @@ export class Card extends Component<IProduct> {
 	set button(value: string) {
 		if (this._button) {
 			this.setText(this._button, value);
+		}
+	}
+
+	setButtonHandler(text: string, onClick: () => void) {
+		if (this._button) {
+			this.setText(this._button, text);
+			this._button.disabled = false;
+			this._button.onclick = onClick;
 		}
 	}
 }
