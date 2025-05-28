@@ -19,6 +19,7 @@ export class OrderFormData {
 
 	setField(field: keyof IOrderForm, value: string) {
 		this.touchedFields[field] = true;
+
 		if (field === 'payment') {
 			if (value === 'cash' || value === 'card') {
 				this.payment = value;
@@ -30,6 +31,7 @@ export class OrderFormData {
 		} else if (field === 'phone') {
 			this.phone = value;
 		}
+
 		if (field === 'payment' || field === 'address') {
 			this.validateDelivery();
 		} else if (field === 'email' || field === 'phone') {
@@ -38,7 +40,6 @@ export class OrderFormData {
 
 			const isEmailTouched = this.touchedFields.email;
 			const isPhoneTouched = this.touchedFields.phone;
-
 			const isValid =
 				!errors.email && !errors.phone && isEmailTouched && isPhoneTouched;
 
@@ -85,8 +86,8 @@ export class OrderFormData {
 		}
 
 		if (!field || field === 'phone') {
-			if (!this.phone?.match(/^\+?\d{10,}$/)) {
-				errors.phone = 'Номер должен состоять из 11 цифр';
+			if (!this.phone?.match(/^(?:\+7|8)\d{10}$/)) {
+				errors.phone = 'Номер должен начинаться с +7 или 8 и содержать 11 цифр';
 			}
 		}
 
@@ -95,15 +96,6 @@ export class OrderFormData {
 
 	validateContacts(): boolean {
 		const errors: Partial<IContactForm> = {};
-
-		if (!this.email?.match(/^\S+@\S+\.\S+$/)) {
-			errors.email = 'Некорректный email';
-		}
-		if (!this.phone?.match(/^\+?\d{10,}$/)) {
-			errors.phone = 'Номер должен состоять из 11 цифр';
-		}
-
-		this.events.emit('contacts:validation-error', errors);
 
 		const isValid =
 			!errors.email &&

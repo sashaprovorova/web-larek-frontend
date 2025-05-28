@@ -79,27 +79,27 @@ export type FormErrors = Partial<Record<keyof IOrderForm, string>>;
 
 // Слой данных
 
-export interface IProductData {
-	products: IProduct[];
-	preview: string | null;
-	setProducts(items: IProduct[]): void;
-	getProduct(id: string): IProduct;
-}
+// export interface c {
+// 	products: IProduct[];
+// 	preview: string | null;
+// 	setProducts(items: IProduct[]): void;
+// 	getProduct(id: string): IProduct;
+// }
 
-export interface IBasketData {
-	getProducts(): IProduct[];
-	getTotal(): number;
-	addProduct(id: IProduct): void;
-	deleteProduct(id: IProduct): void;
-	clearBasket(): void;
-}
+// export interface IBasketData {
+// 	getProducts(): IProduct[];
+// 	getTotal(): number;
+// 	addProduct(id: IProduct): void;
+// 	deleteProduct(id: IProduct): void;
+// 	clearBasket(): void;
+// }
 
-export interface IOrderFormData {
-	payment: PaymentMethod;
-	address: string;
-	email: string;
-	phone: string;
-}
+// export interface IOrderFormData {
+// 	payment: PaymentMethod;
+// 	address: string;
+// 	email: string;
+// 	phone: string;
+// }
 
 //data
 

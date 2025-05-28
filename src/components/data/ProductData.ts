@@ -22,21 +22,4 @@ export class ProductData {
 	getProducts(): IProduct[] {
 		return this._products;
 	}
-
-	// setPreview(id: string) {
-	// 	this._preview = id;
-	// 	const product = this.getProduct(id);
-	// 	if (product) {
-	// 		this.events.emit('product:selected', product);
-	// 	}
-	// }
-
-	// clearPreview() {
-	// 	this._preview = null;
-	// 	this.events.emit('product:previewClear');
-	// }
-
-	// get preview(): string | null {
-	// 	return this._preview;
-	// }
 }
