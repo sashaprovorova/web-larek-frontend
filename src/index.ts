@@ -63,8 +63,6 @@ events.on('modal:open', () => {
 // закрываем модальное окно и очищаем формы
 events.on('modal:close', () => {
 	page.locked = false;
-	deliveryForm.clear?.();
-	contactForm.clear?.();
 });
 
 // создаем карточку товара и предпросмотра
@@ -161,6 +159,7 @@ events.on('basket:remove', (item: IProduct) => {
 // открываем форму доставки
 events.on('order:open', () => {
 	orderData.clear();
+	deliveryForm.clear();
 	modal.render({
 		content: deliveryForm.render({
 			address: '',
@@ -199,6 +198,7 @@ events.on('contacts:validation-error', (errors: Partial<IOrderForm>) => {
 events.on('order:submit', () => {
 	const isValid = orderData.validateDelivery();
 	if (isValid) {
+		contactForm.clear();
 		modal.render({
 			content: contactForm.render({
 				email: '',
@@ -220,22 +220,23 @@ events.on(
 
 // делаем финальную проверку заказа перед отправкой
 events.on('contacts:submit', () => {
-	const isValid = orderData.validateContacts();
-
-	if (isValid) {
-		const fullOrder = orderData.getFormData();
-		fullOrder.items = basketData.getItems().map((i) => i.id);
-		fullOrder.total = basketData.getTotal();
-
+	if (orderData.validateContacts()) {
+		const payload = {
+			...orderData.getFormData(),
+			items: basketData.getItems().map((i) => i.id),
+			total: basketData.getTotal(),
+		};
 		api
-			.orderProducts(fullOrder)
+			.orderProducts(payload)
 			.then((res) => {
 				modal.render({
 					content: success.render({ total: res.total }),
 				});
-				orderData.clear?.();
+				orderData.clear();
 				basketData.clear();
 				page.counter = 0;
+				contactForm.clear();
+				deliveryForm.clear();
 			})
 			.catch(console.error);
 	} else {

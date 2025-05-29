@@ -17,7 +17,7 @@ export class OrderFormData {
 
 	constructor(private events: IEvents) {}
 
-	setField(field: keyof IOrderForm, value: string) {
+	setField(field: keyof IOrderForm, value: string): void {
 		this.touchedFields[field] = true;
 
 		if (field === 'payment') {
@@ -34,17 +34,32 @@ export class OrderFormData {
 
 		if (field === 'payment' || field === 'address') {
 			this.validateDelivery();
-		} else if (field === 'email' || field === 'phone') {
-			const errors = this.getContactValidationErrors(field);
-			this.events.emit('contacts:validation-error', errors);
+		}
 
-			const isEmailTouched = this.touchedFields.email;
-			const isPhoneTouched = this.touchedFields.phone;
+		if (field === 'email' || field === 'phone') {
+			const emailError = this.getContactValidationErrors('email').email;
+			const phoneError = this.getContactValidationErrors('phone').phone;
+
+			const errorsToShow: Partial<IOrderForm> = {};
+			if (this.touchedFields.email && emailError) {
+				errorsToShow.email = emailError;
+			}
+			if (this.touchedFields.phone && phoneError) {
+				errorsToShow.phone = phoneError;
+			}
+			this.events.emit('contacts:validation-error', errorsToShow);
+
 			const isValid =
-				!errors.email && !errors.phone && isEmailTouched && isPhoneTouched;
+				!emailError &&
+				!phoneError &&
+				this.touchedFields.email &&
+				this.touchedFields.phone &&
+				this.email.length > 0 &&
+				this.phone.length > 0;
 
 			this.events.emit('contacts:valid', { isValid });
 		}
+
 		this.events.emit('order:changed', { field, value });
 	}
 
