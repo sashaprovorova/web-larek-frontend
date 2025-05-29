@@ -127,14 +127,21 @@ events.on('basket:changed', (items: IProduct[]) => {
 // отображаем корзину
 function renderBasket() {
 	const items = basketData.getItems();
-	const productItems = items.map((item) => {
+	const productItems = items.map((item, index) => {
 		const card = new Card(cloneTemplate(cardBasketTemplate), {
 			onClick: () => events.emit('basket:remove', item),
 		});
 		card.title = item.title;
 		card.price = item.price;
 		card.id = item.id;
-		return card.render(item);
+
+		const element = card.render(item);
+		const indexElement = element.querySelector('.basket__item-index');
+		if (indexElement) {
+			indexElement.textContent = `${index + 1}`;
+		}
+
+		return element;
 	});
 
 	basketView.list = productItems;
